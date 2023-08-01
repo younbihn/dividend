@@ -18,7 +18,7 @@ public class CompanyEntity {
     private Long id;
 
     @Column(unique = true)
-    private  String ticker;
+    private String ticker;
 
     private String name;
 
