@@ -1,5 +1,6 @@
 package com.stock.dividend.service;
 
+import com.stock.dividend.constants.CacheKey;
 import com.stock.dividend.model.Company;
 import com.stock.dividend.model.Dividend;
 import com.stock.dividend.model.ScrapedResult;
@@ -21,7 +22,7 @@ public class FinanceService {
     private final CompanyRepository companyRepository;
     private final DividendRepository dividendRepository;
 
-    @Cacheable(key = "#companyName", value = "finance")
+    @Cacheable(key = "#companyName", value = CacheKey.KEY_FINANCE)
     public ScrapedResult getDividenByCompanyName(String companyName) {
         // 1. 회사명을 기준으로 회사 정보를 조회
         CompanyEntity company = this.companyRepository.findByName(companyName)

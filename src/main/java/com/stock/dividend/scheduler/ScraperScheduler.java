@@ -1,5 +1,6 @@
 package com.stock.dividend.scheduler;
 
+import com.stock.dividend.constants.CacheKey;
 import com.stock.dividend.model.Company;
 import com.stock.dividend.model.ScrapedResult;
 import com.stock.dividend.persist.CompanyRepository;
@@ -9,6 +10,8 @@ import com.stock.dividend.persist.entity.DividendEntity;
 import com.stock.dividend.scraper.Scraper;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
@@ -16,6 +19,7 @@ import java.util.List;
 
 @Slf4j
 @Component
+@EnableCaching
 @AllArgsConstructor
 public class ScraperScheduler {
 
@@ -24,6 +28,8 @@ public class ScraperScheduler {
 
     private final Scraper yahooFinanceScraper;
 
+    //  일정 주기마다 수행
+    @CacheEvict(value = CacheKey.KEY_FINANCE, allEntries = true)
     @Scheduled(cron = "0 0 0 * * *") // "${scheduler.scrap.yahoo}" 알수없는 오류로 인한 직접 입력
     // -> 여러개의 스레드를 관리하기 용이 하기 위해 사용
     public void yahooFinanceScheduling() {
@@ -44,6 +50,7 @@ public class ScraperScheduler {
                         boolean exists = this.dividendRepository.existsByCompanyIdAndDate(e.getCompanyId(), e.getDate());
                         if (!exists) {
                             this.dividendRepository.save(e);
+                            log.info("insert new dividend -> " + e.toString());
                         }
                     });
             // 연속적으로 스크래핑 대상 사이트 서버에 요청을 날리지 않도록 일시정지
